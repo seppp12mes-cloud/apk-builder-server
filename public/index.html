@@ -1,0 +1,1313 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080a10">
+  <title>سی‌شاپ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #080a10;
+      --bg-deep: #030407;
+      --panel: #10141d;
+      --panel-soft: #161c28;
+      --accent: #7dd3ff;
+      --accent-bright: #aae6ff;
+      --accent-dim: #2d4459;
+      --accent2: #b6a3ff;
+      --text: #e9edf6;
+      --text-dim: #7c869b;
+      --line: #1e2532;
+      --line-soft: #171d29;
+      --ok: #6fd9ac;
+      --bad: #ef7a72;
+      --bad-tint: #1c1216;
+      --font: "Vazirmatn", Tahoma, "Segoe UI", system-ui, sans-serif;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+
+    html { -webkit-text-size-adjust: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      line-height: 1.7;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* ---------- پس‌زمینه‌ی متحرک: بافت الماس‌تراش ---------- */
+    .aurora {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      overflow: hidden;
+      pointer-events: none;
+      background: var(--bg);
+    }
+    .aurora .facets {
+      position: absolute;
+      inset: -10%;
+      width: 120%;
+      height: 120%;
+      opacity: 0.16;
+      animation: pan 70s linear infinite;
+    }
+    .aurora .sweep {
+      position: absolute;
+      inset: -30%;
+      background: linear-gradient(115deg,
+        transparent 42%,
+        rgba(125, 211, 255, 0.16) 49%,
+        rgba(182, 163, 255, 0.16) 53%,
+        transparent 60%);
+      background-size: 260% 260%;
+      animation: sweep 17s ease-in-out infinite;
+      mix-blend-mode: screen;
+    }
+    .aurora span {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(110px);
+      opacity: 0.22;
+      will-change: transform;
+    }
+    .aurora .g1 {
+      width: 44vw; height: 44vw;
+      top: -16vw; right: -12vw;
+      background: var(--accent);
+      animation: drift1 28s ease-in-out infinite;
+    }
+    .aurora .g2 {
+      width: 38vw; height: 38vw;
+      bottom: -18vw; left: -12vw;
+      background: var(--accent2);
+      animation: drift2 34s ease-in-out infinite;
+    }
+    @keyframes pan {
+      from { transform: translate(0, 0); }
+      to   { transform: translate(-120px, -104px); }
+    }
+    @keyframes sweep {
+      0%, 100% { background-position: 0% 0%; }
+      50%      { background-position: 100% 100%; }
+    }
+    @keyframes drift1 {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(-6vw, 8vw) scale(1.12); }
+    }
+    @keyframes drift2 {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(8vw, -6vw) scale(1.08); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .aurora .facets, .aurora .sweep, .aurora span { animation: none; }
+    }
+
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    .page {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: clamp(28px, 6vw, 56px) clamp(16px, 3vw, 32px) 72px;
+      display: flex;
+      flex-direction: column;
+      gap: clamp(32px, 6vw, 56px);
+    }
+
+    /* ---------- سرتیتر ---------- */
+    .intro {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--line);
+    }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand .glyph { flex: none; width: 42px; height: 42px; filter: drop-shadow(0 0 10px rgba(125, 211, 255, 0.35)); }
+    .brand .wordmark {
+      margin: 0;
+      font-size: clamp(22px, 3.4vw, 28px);
+      font-weight: 800;
+      line-height: 1;
+      background: linear-gradient(90deg, var(--accent-bright), var(--accent2));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .intro .tagline {
+      margin: 0;
+      color: var(--text-dim);
+      font-size: 13.5px;
+      padding: 7px 14px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+    }
+    @media (max-width: 520px) {
+      .intro { justify-content: center; text-align: center; }
+    }
+
+    /* ---------- چیدمان ---------- */
+
+    /* ---------- ویرایشگر ---------- */
+    .editor {
+      background: var(--panel);
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      transition: border-color 0.15s;
+    }
+    .editor.drop { border-color: var(--accent); }
+
+    .bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 12px;
+      background: var(--panel-soft);
+      border-bottom: 1px solid var(--line);
+    }
+    .tab {
+      direction: ltr;
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--accent-bright);
+      background: var(--bg-deep);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 3px 10px;
+    }
+    .spacer { flex: 1; }
+
+    /* ---------- انتخاب نوع اپ ---------- */
+    .modebar {
+      display: flex;
+      gap: 8px;
+      padding: 14px 14px 0;
+      background: var(--panel-soft);
+    }
+    .modebtn {
+      flex: 1;
+      font: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-dim);
+      background: transparent;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 9px 12px;
+      cursor: pointer;
+      transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+    }
+    .modebtn.active {
+      color: var(--bg-deep);
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+    .modebtn:not(.active):hover { border-color: var(--accent-dim); color: var(--text); }
+
+    .submodebar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 10px 14px 0;
+      background: var(--panel-soft);
+    }
+    .submodebtn {
+      font: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-dim);
+      background: transparent;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 6px 14px;
+      cursor: pointer;
+    }
+    .submodebtn.active { color: var(--bg-deep); background: var(--accent-bright); border-color: var(--accent-bright); }
+    .submodebtn:not(.active):hover { border-color: var(--accent-dim); color: var(--text); }
+
+    /* ---------- تب‌های چند فایلی ---------- */
+    .filetabs {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 14px;
+      background: var(--panel-soft);
+      border-bottom: 1px solid var(--line);
+    }
+    .filetab {
+      direction: ltr;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--mono);
+      font-size: 12.5px;
+      color: var(--text-dim);
+      background: var(--bg-deep);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 4px 6px 4px 10px;
+      cursor: pointer;
+    }
+    .filetab.active { border-color: var(--accent); color: var(--accent-bright); font-weight: 700; }
+    .filetab .rm {
+      display: grid;
+      place-items: center;
+      width: 16px;
+      height: 16px;
+      font-size: 12px;
+      line-height: 1;
+      color: var(--text-dim);
+      background: transparent;
+      border: 0;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+    .filetab .rm:hover { background: var(--bad-tint); color: var(--bad); }
+    .addfile {
+      font: inherit;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--accent-bright);
+      background: transparent;
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      padding: 4px 10px;
+      cursor: pointer;
+    }
+    .addfile:hover { border-color: var(--accent-dim); }
+
+    /* ---------- بارگذاری ZIP ---------- */
+    .dropzone {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      height: clamp(260px, 44vh, 420px);
+      margin: 16px;
+      padding: 24px;
+      text-align: center;
+      color: var(--text-dim);
+      background: var(--bg-deep);
+      border: 1px dashed var(--line);
+      border-radius: 14px;
+    }
+    .dropzone strong { color: var(--text); font-size: 16px; }
+    .dropzone .zipname {
+      direction: ltr;
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--accent-bright);
+    }
+
+    .ghost {
+      font: inherit;
+      font-size: 14px;
+      color: var(--accent-bright);
+      background: transparent;
+      border: 0;
+      border-radius: 8px;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+    .ghost:hover { background: var(--panel-soft); }
+
+    .note {
+      margin: 0;
+      padding: 10px 16px;
+      font-size: 13px;
+      color: var(--text-dim);
+      border-bottom: 1px solid var(--line);
+    }
+
+    textarea {
+      display: block;
+      width: 100%;
+      height: clamp(300px, 52vh, 520px);
+      padding: 16px;
+      border: 0;
+      resize: vertical;
+      direction: ltr;
+      text-align: left;
+      font-family: var(--mono);
+      font-size: 14px;
+      line-height: 1.6;
+      tab-size: 2;
+      color: var(--text);
+      background: var(--bg-deep);
+    }
+    textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+    .foot {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px 18px;
+      padding: 14px;
+      border-top: 1px solid var(--line);
+    }
+    .meta { display: flex; gap: 16px; font-size: 13px; color: var(--text-dim); }
+    .meta .over { color: var(--bad); font-weight: 700; }
+
+    .primary {
+      margin-inline-start: auto;
+      min-height: 46px;
+      padding: 10px 30px;
+      font: inherit;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--bg-deep);
+      background: var(--accent);
+      border: 0;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background-color 0.15s;
+    }
+    .primary:hover:not(:disabled) { background: var(--accent-bright); }
+    .primary:disabled { background: var(--accent-dim); color: var(--text-dim); cursor: not-allowed; }
+
+    .err {
+      display: none;
+      margin: 0 14px 14px;
+      padding: 12px 14px;
+      font-size: 14px;
+      color: var(--text);
+      background: var(--bad-tint);
+      border-inline-start: 3px solid var(--bad);
+      border-radius: 10px;
+    }
+    .err.show { display: block; }
+    .err strong { display: block; margin-bottom: 2px; font-size: 15px; }
+    .err p { margin: 4px 0 0; }
+    .err code {
+      display: block;
+      margin: 8px 0 0;
+      padding: 6px 10px;
+      direction: ltr;
+      text-align: left;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text);
+      background: var(--bg-deep);
+      border-radius: 8px;
+      overflow-wrap: anywhere;
+    }
+    .err a { color: var(--accent-bright); font-weight: 700; }
+
+    /* ---------- گوشی ---------- */
+    .side { display: flex; flex-direction: column; align-items: center; gap: 22px; }
+
+    .phone {
+      position: relative;
+      width: min(100%, 270px);
+      aspect-ratio: 9 / 17;
+      padding: 11px;
+      background: var(--bg-deep);
+      border: 1px solid var(--line);
+      border-radius: 38px;
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.45);
+    }
+    .phone::before {
+      content: "";
+      position: absolute;
+      top: 21px;
+      left: 50%;
+      width: 12px;
+      height: 12px;
+      transform: translateX(-50%);
+      background: var(--bg-deep);
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      z-index: 2;
+    }
+
+    .screen {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      padding: 46px 20px 22px;
+      overflow: hidden;
+      background: var(--panel);
+      border-radius: 28px;
+    }
+    .screen > * { position: relative; z-index: 1; }
+    .screen > .fill {
+      position: absolute;
+      z-index: 0;
+      inset: auto 0 0 0;
+      height: 0%;
+      background: var(--accent);
+      transition: height 1s ease, background-color 0.4s;
+      opacity: 0.35;
+    }
+    .phone[data-phase="done"] .fill { background: var(--ok); }
+    .phone[data-phase="failed"] .fill { background: var(--bad); }
+
+    .state { margin: 0; font-size: 20px; font-weight: 800; line-height: 1.4; color: var(--text); }
+    .hint { margin: 6px 0 0; font-size: 13px; color: var(--text-dim); }
+    .clock {
+      display: inline-block;
+      align-self: flex-start;
+      margin-top: 14px;
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--accent-bright);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .stages {
+      list-style: none;
+      margin: auto 0 0;
+      padding: 0;
+      display: grid;
+      gap: 11px;
+    }
+    .stage { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-dim); }
+    .stage[data-s="todo"] { opacity: 0.6; }
+    .stage[data-s="failed"] { font-weight: 700; color: var(--text); }
+
+    .mark {
+      flex: none;
+      width: 24px;
+      height: 24px;
+      display: grid;
+      place-items: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-dim);
+      border: 2px solid var(--line);
+      border-radius: 50%;
+    }
+    .mark svg { width: 13px; height: 13px; }
+    .stage[data-s="done"] .mark { background: var(--accent); border-color: var(--accent); color: var(--bg-deep); }
+    .stage[data-s="failed"] .mark { background: var(--bad); border-color: var(--bad); color: var(--text); }
+    .stage[data-s="active"] .mark {
+      border-color: var(--accent);
+      border-top-color: transparent;
+      animation: spin 0.9s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ---------- نتیجه ---------- */
+    .result { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+    .dl {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 52px;
+      padding: 12px 30px;
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--bg-deep);
+      text-decoration: none;
+      background: var(--accent);
+      border-radius: 999px;
+      transition: background-color 0.15s;
+    }
+    .dl:hover { background: var(--accent-bright); }
+    .dl:focus-visible { outline-color: var(--text); }
+    .dl svg { width: 20px; height: 20px; }
+    .result small { color: var(--text-dim); font-size: 13px; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .screen > .fill { transition: none; }
+      .stage[data-s="active"] .mark { animation: none; border-top-color: var(--accent); }
+    }
+  </style>
+</head>
+<body>
+  <div class="aurora" aria-hidden="true">
+    <svg class="facets" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="facetStroke" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#7dd3ff"/>
+          <stop offset="1" stop-color="#b6a3ff"/>
+        </linearGradient>
+        <pattern id="facetTile" width="120" height="104" patternUnits="userSpaceOnUse">
+          <polygon points="60,0 120,52 60,104 0,52" fill="none" stroke="url(#facetStroke)" stroke-width="1"/>
+          <line x1="60" y1="0" x2="60" y2="104" stroke="url(#facetStroke)" stroke-width="0.6"/>
+          <line x1="0" y1="52" x2="120" y2="52" stroke="url(#facetStroke)" stroke-width="0.6"/>
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#facetTile)"/>
+    </svg>
+    <div class="sweep"></div>
+    <span class="g1"></span>
+    <span class="g2"></span>
+  </div>
+  <main class="page">
+    <header class="intro">
+      <div class="brand">
+        <svg class="glyph" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <defs>
+            <linearGradient id="gemGrad" x1="4" y1="3" x2="38" y2="41" gradientUnits="userSpaceOnUse">
+              <stop offset="0" stop-color="#aae6ff"/>
+              <stop offset="1" stop-color="#b6a3ff"/>
+            </linearGradient>
+          </defs>
+          <path d="M22 3 L38 15 L22 41 L6 15 Z" stroke="url(#gemGrad)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+          <path d="M6 15 L38 15" stroke="url(#gemGrad)" stroke-width="1.3" opacity="0.75"/>
+          <path d="M15 15 L22 41" stroke="url(#gemGrad)" stroke-width="1.1" opacity="0.55"/>
+          <path d="M29 15 L22 41" stroke="url(#gemGrad)" stroke-width="1.1" opacity="0.55"/>
+          <path d="M22 3 L15 15" stroke="url(#gemGrad)" stroke-width="1.1" opacity="0.55"/>
+          <path d="M22 3 L29 15" stroke="url(#gemGrad)" stroke-width="1.1" opacity="0.55"/>
+        </svg>
+        <h1 class="wordmark">سی‌شاپ</h1>
+      </div>
+      <p class="tagline">کد را بسپارید، اپ را ببرید.</p>
+    </header>
+
+    <section class="editor" id="editorBox" aria-label="کد اپ">
+        <div class="modebar" id="modeBar">
+          <button type="button" class="modebtn active" data-mode="web">اپ وب (HTML)</button>
+          <button type="button" class="modebtn" data-mode="android">اپ اندروید (Kotlin)</button>
+        </div>
+        <div class="submodebar" id="subModeBar" hidden>
+          <button type="button" class="submodebtn active" data-amode="single">۱. یک فایل Kotlin</button>
+          <button type="button" class="submodebtn" data-amode="multi">۲. چند فایل</button>
+          <button type="button" class="submodebtn" data-amode="zip">۳. فایل ZIP</button>
+        </div>
+        <div class="bar">
+          <span class="tab" id="tabLabel">index.html</span>
+          <span class="spacer"></span>
+          <button type="button" class="ghost" id="sample">قرار دادن نمونه</button>
+          <button type="button" class="ghost" id="pick">بارگذاری فایل</button>
+          <input type="file" id="file" accept=".html,.htm,text/html" hidden>
+          <input type="file" id="zipFile" accept=".zip" hidden>
+        </div>
+        <p class="note" id="noteText">یک فایل HTML کامل بدهید؛ CSS و JavaScript باید داخل همان فایل باشند. فایل را می‌توانید روی این کادر بکشید و رها کنید.</p>
+        <div class="filetabs" id="fileTabs" hidden></div>
+        <textarea id="code" spellcheck="false" autocomplete="off" autocapitalize="off"
+                  aria-label="کد اپ" placeholder="<!doctype html>"></textarea>
+        <div class="dropzone" id="zipZone" hidden>
+          <strong>فایل ZIP پروژه‌ی Android Studio را اینجا بکشید</strong>
+          <span>یا روی «بارگذاری فایل» در بالا بزنید</span>
+          <span class="zipname" id="zipName"></span>
+        </div>
+        <div class="foot">
+          <div class="meta" id="metaBox">
+            <span id="lines">۰ خط</span>
+            <span id="size">۰ بایت</span>
+          </div>
+          <button type="button" class="primary" id="build">ساخت اپ</button>
+        </div>
+        <div class="err" id="err" role="alert"></div>
+      </section>
+
+      <aside class="side">
+        <div class="phone" id="phone" data-phase="idle">
+          <div class="screen">
+            <div class="fill" id="fill"></div>
+            <h2 class="state" id="state" aria-live="polite">منتظر کد شما</h2>
+            <p class="hint" id="hint">کد را وارد کنید و دکمه‌ی «ساخت اپ» را بزنید.</p>
+            <span class="clock" id="clock" dir="ltr" hidden>۰۰:۰۰</span>
+            <ol class="stages" id="stages"></ol>
+          </div>
+        </div>
+
+        <div class="result" id="result" hidden>
+          <a class="dl" id="dl" href="#" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M5 20h14"/></svg>
+            دانلود APK
+          </a>
+          <small>برای نصب، فایل را روی گوشی اندروید باز کنید.</small>
+        </div>
+      </aside>
+  </main>
+
+<script>
+(() => {
+  "use strict";
+
+  // اگر این صفحه را روی سایت دیگری میزبانی می‌کنید، آدرس سرور را اینجا بنویسید.
+  // مثال: "https://apk-site-xxxx.onrender.com"
+  const API = "";
+
+  const DRAFT_KEY = "apk-builder-draft";
+  const POLL_MS = 5000;
+  const MAX_WAIT_MS = 25 * 60 * 1000;
+  const MAX_BYTES = 900 * 1024;
+  const MAX_ZIP_BYTES = 40 * 1024 * 1024;
+
+  const $ = (id) => document.getElementById(id);
+  const editor = $("code"), editorBox = $("editorBox"), buildBtn = $("build");
+  const sampleBtn = $("sample"), pickBtn = $("pick"), fileInput = $("file");
+  const linesEl = $("lines"), sizeEl = $("size"), errBox = $("err");
+  const phoneEl = $("phone"), fill = $("fill"), stateEl = $("state"), hintEl = $("hint");
+  const clockEl = $("clock"), stagesEl = $("stages"), resultEl = $("result"), dl = $("dl");
+  const modeBar = $("modeBar"), subModeBar = $("subModeBar");
+  const tabLabel = $("tabLabel"), noteText = $("noteText"), metaBox = $("metaBox");
+  const fileTabs = $("fileTabs"), zipZone = $("zipZone"), zipName = $("zipName"), zipFileInput = $("zipFile");
+
+  const fa = new Intl.NumberFormat("fa-IR");
+  const fa2 = new Intl.NumberFormat("fa-IR", { minimumIntegerDigits: 2 });
+  const faKb = new Intl.NumberFormat("fa-IR", { maximumFractionDigits: 1 });
+
+  const ORDER = ["send", "queue", "build", "done"];
+  const STAGES = [
+    "ارسال کد به GitHub",
+    "قرار گرفتن در صف",
+    "ساخت APK",
+    "آماده‌ی دانلود",
+  ];
+  const COPY = {
+    idle:   ["منتظر کد شما", "کد را وارد کنید و دکمه‌ی «ساخت اپ» را بزنید."],
+    send:   ["در حال ارسال کد", "کد شما در حال انتقال به GitHub است."],
+    queue:  ["در صف اجرا", "GitHub در حال آماده‌سازی یک سرور برای ساخت است."],
+    build:  ["در حال ساخت اپ", "این مرحله معمولاً ۳ تا ۶ دقیقه طول می‌کشد. صفحه را نبندید."],
+    done:   ["اپ آماده است", "فایل APK ساخته شد. دکمه‌ی دانلود را بزنید."],
+    failed: ["ساخت ناموفق بود", "دلیل خطا زیر کادر کد نوشته شده است."],
+  };
+
+  const ICON_CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>';
+  const ICON_X = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>';
+
+  const SAMPLE = `<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>شمارنده</title>
+<style>
+  body { margin: 0; min-height: 100vh; display: grid; place-items: center;
+         background: #2340f0; color: #fff; font-family: sans-serif; text-align: center; }
+  #n { font-size: 96px; font-weight: 800; }
+  button { width: 72px; height: 72px; margin: 8px; border: 0; border-radius: 50%;
+           font-size: 30px; background: #ffc531; color: #101b3b; }
+</style>
+</head>
+<body>
+  <main>
+    <div id="n">0</div>
+    <button id="minus">−</button>
+    <button id="plus">+</button>
+  </main>
+<script>
+  let n = 0;
+  const el = document.getElementById("n");
+  document.getElementById("plus").onclick = () => { el.textContent = ++n; };
+  document.getElementById("minus").onclick = () => { el.textContent = --n; };
+<\/script>
+</body>
+</html>
+`;
+
+  const SAMPLE_KOTLIN_SINGLE = `package com.example.app
+
+import android.os.Bundle
+import android.widget.Button
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+
+class MainActivity : AppCompatActivity() {
+    private var count = 0
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val label = findViewById<TextView>(R.id.label)
+        findViewById<Button>(R.id.plus).setOnClickListener {
+            count++
+            label.text = count.toString()
+        }
+        findViewById<Button>(R.id.minus).setOnClickListener {
+            count--
+            label.text = count.toString()
+        }
+    }
+}
+`;
+
+  const SAMPLE_MANIFEST = `<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application
+        android:allowBackup="true"
+        android:label="اپ من"
+        android:theme="@style/Theme.AppCompat.DayNight">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>
+`;
+
+  const SAMPLE_GRADLE = `plugins {
+    id("com.android.application")
+    id("org.jetbrains.kotlin.android")
+}
+
+android {
+    namespace = "com.example.app"
+    compileSdk = 34
+
+    defaultConfig {
+        applicationId = "com.example.app"
+        minSdk = 24
+        targetSdk = 34
+        versionCode = 1
+        versionName = "1.0"
+    }
+}
+
+dependencies {
+    implementation("androidx.appcompat:appcompat:1.7.0")
+    implementation("androidx.core:core-ktx:1.13.1")
+}
+`;
+
+  function defaultAndroidFiles() {
+    return [
+      { name: "MainActivity.kt", content: SAMPLE_KOTLIN_SINGLE },
+      { name: "AndroidManifest.xml", content: SAMPLE_MANIFEST },
+      { name: "build.gradle.kts", content: SAMPLE_GRADLE },
+    ];
+  }
+
+  // ---------- حالت اپ (وب یا اندروید) ----------
+  let mode = "web";       // "web" | "android"
+  let amode = "single";   // "single" | "multi" | "zip"
+  const state = {
+    web: "",
+    androidSingle: SAMPLE_KOTLIN_SINGLE,
+    androidFiles: defaultAndroidFiles(),
+    activeFileIdx: 0,
+    zipFile: null,
+  };
+
+  function currentText() {
+    if (mode === "web") return state.web;
+    if (amode === "single") return state.androidSingle;
+    if (amode === "multi") return state.androidFiles[state.activeFileIdx]?.content ?? "";
+    return "";
+  }
+
+  function writeText(v) {
+    if (mode === "web") state.web = v;
+    else if (amode === "single") state.androidSingle = v;
+    else if (amode === "multi" && state.androidFiles[state.activeFileIdx]) {
+      state.androidFiles[state.activeFileIdx].content = v;
+    }
+  }
+
+  function renderFileTabs() {
+    fileTabs.innerHTML = "";
+    state.androidFiles.forEach((f, i) => {
+      const tab = document.createElement("span");
+      tab.className = "filetab" + (i === state.activeFileIdx ? " active" : "");
+      const label = document.createElement("span");
+      label.textContent = f.name;
+      tab.append(label);
+      if (state.androidFiles.length > 1) {
+        const rm = document.createElement("button");
+        rm.type = "button";
+        rm.className = "rm";
+        rm.textContent = "×";
+        rm.setAttribute("aria-label", "حذف " + f.name);
+        rm.addEventListener("click", (e) => {
+          e.stopPropagation();
+          state.androidFiles.splice(i, 1);
+          if (state.activeFileIdx >= state.androidFiles.length) state.activeFileIdx = state.androidFiles.length - 1;
+          renderMode();
+        });
+        tab.append(rm);
+      }
+      tab.addEventListener("click", () => {
+        state.activeFileIdx = i;
+        renderMode();
+      });
+      fileTabs.append(tab);
+    });
+    const add = document.createElement("button");
+    add.type = "button";
+    add.className = "addfile";
+    add.textContent = "+ فایل تازه";
+    add.addEventListener("click", () => {
+      const name = prompt("نام فایل تازه (مثلاً SecondActivity.kt):", "NewFile.kt");
+      if (!name || !name.trim()) return;
+      state.androidFiles.push({ name: name.trim(), content: "" });
+      state.activeFileIdx = state.androidFiles.length - 1;
+      renderMode();
+    });
+    fileTabs.append(add);
+  }
+
+  function renderMode() {
+    modeBar.querySelectorAll(".modebtn").forEach((b) => b.classList.toggle("active", b.dataset.mode === mode));
+    subModeBar.hidden = mode !== "android";
+    if (mode === "android") {
+      subModeBar.querySelectorAll(".submodebtn").forEach((b) => b.classList.toggle("active", b.dataset.amode === amode));
+    }
+
+    const isZip = mode === "android" && amode === "zip";
+    const isMulti = mode === "android" && amode === "multi";
+
+    fileTabs.hidden = !isMulti;
+    zipZone.hidden = !isZip;
+    editor.hidden = isZip;
+    metaBox.hidden = isZip;
+    sampleBtn.hidden = isZip;
+    pickBtn.textContent = isZip ? "انتخاب فایل ZIP" : "بارگذاری فایل";
+    fileInput.accept = mode === "web" ? ".html,.htm,text/html" : ".kt,.xml,.kts,.gradle,text/plain";
+
+    if (mode === "web") {
+      tabLabel.textContent = "index.html";
+      noteText.textContent = "یک فایل HTML کامل بدهید؛ CSS و JavaScript باید داخل همان فایل باشند. فایل را می‌توانید روی این کادر بکشید و رها کنید.";
+    } else if (amode === "single") {
+      tabLabel.textContent = "MainActivity.kt";
+      noteText.textContent = "کد کامل Kotlin یک اکتیویتی را وارد کنید — مناسب برای شروع و اپ‌های ساده.";
+    } else if (amode === "multi") {
+      tabLabel.textContent = "پروژه‌ی چندفایلی";
+      noteText.textContent = "چند فایل Kotlin به‌همراه AndroidManifest.xml و build.gradle.kts را جدا از هم وارد کنید — مناسب برای اپ‌های متوسط. با «+ فایل تازه» فایل اضافه کنید.";
+    } else {
+      tabLabel.textContent = "project.zip";
+      noteText.textContent = "کل پروژه‌ی Android Studio را به‌صورت یک فایل ZIP بارگذاری کنید — مناسب برای اپ‌های کامل و حرفه‌ای.";
+    }
+
+    if (isMulti) renderFileTabs();
+    if (!isZip) editor.value = currentText();
+    updateMeta();
+  }
+
+  // ---------- وضعیت ----------
+  let phase = "idle";
+  let failedAt = -1;
+  let running = false;
+  let hasRun = false;
+  let startedAt = 0, phaseStartedAt = 0, frozen = 0, lastPct = 0;
+  let ticker = null, pollTimer = null, pollFails = 0, saveTimer = null;
+
+  // ---------- نمایش گوشی ----------
+  function stageState(i) {
+    if (phase === "idle") return "todo";
+    if (phase === "failed") return i < failedAt ? "done" : i === failedAt ? "failed" : "todo";
+    if (phase === "done") return "done";
+    const cur = ORDER.indexOf(phase);
+    return i < cur ? "done" : i === cur ? "active" : "todo";
+  }
+
+  function renderStages() {
+    stagesEl.innerHTML = STAGES.map((label, i) => {
+      const s = stageState(i);
+      const inner = s === "done" ? ICON_CHECK : s === "failed" ? ICON_X : s === "active" ? "" : fa.format(i + 1);
+      return `<li class="stage" data-s="${s}"><span class="mark">${inner}</span><span>${label}</span></li>`;
+    }).join("");
+  }
+
+  function percent() {
+    const t = (Date.now() - phaseStartedAt) / 1000;
+    switch (phase) {
+      case "idle":  return 0;
+      case "send":  return 10;
+      case "queue": return 18 + Math.min(10, t / 6);
+      case "build": return 30 + 62 * (1 - Math.exp(-t / 150));
+      case "done":  return 100;
+      default:      return lastPct;
+    }
+  }
+
+  function paint() {
+    const p = Math.round(percent() * 10) / 10;
+    if (phase !== "failed") lastPct = p;
+    fill.style.height = p + "%";
+    const s = Math.floor((running ? Date.now() - startedAt : frozen) / 1000);
+    clockEl.textContent = fa2.format(Math.floor(s / 60)) + ":" + fa2.format(s % 60);
+    clockEl.hidden = phase === "idle";
+  }
+
+  function setPhase(next) {
+    if (next === phase) return;
+    const a = ORDER.indexOf(phase), b = ORDER.indexOf(next);
+    if (a >= 0 && b >= 0 && b < a) return; // هرگز به مرحله‌ی قبل برنگرد
+    if (next === "failed") failedAt = Math.max(0, a);
+    phase = next;
+    phaseStartedAt = Date.now();
+    phoneEl.dataset.phase = phase;
+    stateEl.textContent = COPY[phase][0];
+    hintEl.textContent = COPY[phase][1];
+    renderStages();
+    paint();
+  }
+
+  // ---------- خطا ----------
+  function explain(raw) {
+    const m = /GitHub (\d{3})/.exec(raw || "");
+    if (!m) return "";
+    switch (m[1]) {
+      case "401": return "توکن معتبر نیست یا منقضی شده است. یک توکن جدید بسازید و در تنظیمات سرور (GH_TOKEN) جایگزین کنید.";
+      case "403": return "توکن دسترسی کافی ندارد. دسترسی‌های Actions و Contents باید روی «Read and write» باشند.";
+      case "404": return "ریپازیتوری یا شاخه‌ی main پیدا نشد. مقدارهای OWNER و REPO را در تنظیمات سرور بررسی کنید و مطمئن شوید فایل www/index.html وجود دارد.";
+      case "422": return "GitHub درخواست را نپذیرفت. مطمئن شوید فایل .github/workflows/build.yml در ریپازیتوری وجود دارد.";
+      default:    return "";
+    }
+  }
+
+  function showError(title, message, extra = {}) {
+    errBox.textContent = "";
+    const strong = document.createElement("strong");
+    strong.textContent = title;
+    errBox.append(strong);
+
+    const p = document.createElement("p");
+    p.textContent = message;
+    errBox.append(p);
+
+    if (extra.hint) {
+      const h = document.createElement("p");
+      h.textContent = extra.hint;
+      errBox.append(h);
+    }
+    if (extra.detail) {
+      const c = document.createElement("code");
+      c.textContent = extra.detail;
+      errBox.append(c);
+    }
+    if (extra.logsUrl && /^https:\/\//.test(extra.logsUrl)) {
+      const q = document.createElement("p");
+      const a = document.createElement("a");
+      a.href = extra.logsUrl;
+      a.target = "_blank";
+      a.rel = "noopener";
+      a.textContent = "مشاهده‌ی گزارش ساخت";
+      q.append(a);
+      errBox.append(q);
+    }
+    errBox.classList.add("show");
+    errBox.scrollIntoView({ block: "nearest" });
+  }
+
+  function hideError() {
+    errBox.classList.remove("show");
+    errBox.textContent = "";
+  }
+
+  // ---------- کنترل ساخت ----------
+  function setBusy(busy) {
+    buildBtn.disabled = busy;
+    buildBtn.textContent = busy ? "در حال ساخت…" : hasRun ? "ساخت دوباره" : "ساخت اپ";
+  }
+
+  function finish() {
+    if (running) frozen = Date.now() - startedAt;
+    running = false;
+    clearTimeout(pollTimer);
+    clearInterval(ticker);
+    setBusy(false);
+  }
+
+  function fail(message, extra) {
+    finish();
+    setPhase("failed");
+    showError("ساخت انجام نشد", message, extra);
+  }
+
+  function succeed(url) {
+    if (!url || !/^https:\/\//.test(url)) {
+      return fail("ساخت تمام شد، اما لینک دانلود پیدا نشد.", {
+        hint: "فایل APK را از بخش Releases در ریپازیتوری GitHub دانلود کنید.",
+      });
+    }
+    finish();
+    setPhase("done");
+    dl.href = url;
+    resultEl.hidden = false;
+  }
+
+  async function poll(id) {
+    if (!running) return;
+    if (Date.now() - startedAt > MAX_WAIT_MS) {
+      return fail("زمان انتظار بیش از حد طولانی شد.", {
+        hint: "وضعیت ساخت را در تب Actions ریپازیتوری GitHub بررسی کنید.",
+      });
+    }
+    try {
+      const r = await fetch(`${API}/status/${id}`);
+      const s = await r.json();
+      if (!r.ok || s.error) throw new Error(s.error || "پاسخ نامعتبر از سرور");
+      pollFails = 0;
+      if (s.state === "success") return succeed(s.url);
+      if (s.state === "failed") {
+        return fail("ساخت روی GitHub با خطا متوقف شد.", {
+          logsUrl: s.logs,
+          hint: "روی «مشاهده‌ی گزارش ساخت» بزنید و متن خطای قرمز را بخوانید.",
+        });
+      }
+      setPhase(s.state === "in_progress" ? "build" : "queue");
+    } catch (e) {
+      pollFails++;
+      if (pollFails >= 4) {
+        const raw = String(e.message || e);
+        return fail("ارتباط با سرور برقرار نشد.", { detail: raw, hint: explain(raw) });
+      }
+    }
+    pollTimer = setTimeout(() => poll(id), POLL_MS);
+  }
+
+  function buildPayload() {
+    if (mode === "web") {
+      const code = editor.value;
+      if (!code.trim()) {
+        showError("کادر کد خالی است", "کد HTML اپ را در کادر قرار دهید، یا فایل آن را بارگذاری کنید.");
+        editor.focus();
+        return null;
+      }
+      if (new Blob([code]).size > MAX_BYTES) {
+        showError("حجم کد زیاد است", "حجم کد از حدود ۹۰۰ کیلوبایت بیشتر است.", {
+          hint: "تصاویر بزرگ داخل فایل را حذف یا کوچک‌تر کنید و دوباره تلاش کنید.",
+        });
+        return null;
+      }
+      return { type: "web", code };
+    }
+
+    if (amode === "single") {
+      const code = editor.value;
+      if (!code.trim()) {
+        showError("کادر کد خالی است", "کد Kotlin اکتیویتی اصلی را در کادر قرار دهید.");
+        editor.focus();
+        return null;
+      }
+      if (new Blob([code]).size > MAX_BYTES) {
+        showError("حجم کد زیاد است", "حجم کد از حدود ۹۰۰ کیلوبایت بیشتر است.");
+        return null;
+      }
+      return { type: "android-single", code };
+    }
+
+    if (amode === "multi") {
+      const files = state.androidFiles.filter((f) => f.name.trim());
+      if (!files.length || !files.some((f) => f.content.trim())) {
+        showError("فایلی برای ساخت وجود ندارد", "دست‌کم یک فایل Kotlin با کد وارد کنید.");
+        return null;
+      }
+      const totalBytes = files.reduce((s, f) => s + new Blob([f.content]).size, 0);
+      if (totalBytes > MAX_BYTES) {
+        showError("حجم فایل‌ها زیاد است", "مجموع حجم فایل‌ها از حدود ۹۰۰ کیلوبایت بیشتر است.");
+        return null;
+      }
+      return { type: "android-multi", files: files.map((f) => ({ path: f.name.trim(), content: f.content })) };
+    }
+
+    // amode === "zip"
+    if (!state.zipFile) {
+      showError("فایلی انتخاب نشده", "فایل ZIP پروژه‌ی Android Studio را بارگذاری کنید یا بکشید و رها کنید.");
+      return null;
+    }
+    return { pending_zip: true };
+  }
+
+  async function startBuild() {
+    if (running) return;
+
+    const payload = buildPayload();
+    if (!payload) return;
+
+    hideError();
+    resultEl.hidden = true;
+    hasRun = true;
+    running = true;
+    startedAt = Date.now();
+    frozen = 0;
+    lastPct = 0;
+    pollFails = 0;
+    phase = "idle";
+    failedAt = -1;
+    setBusy(true);
+    setPhase("send");
+    clearInterval(ticker);
+    ticker = setInterval(paint, 500);
+
+    if (window.matchMedia("(max-width: 860px)").matches) {
+      phoneEl.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+
+    try {
+      let body = payload;
+      if (payload.pending_zip) {
+        const zipBase64 = await fileToBase64(state.zipFile);
+        body = { type: "android-zip", filename: state.zipFile.name, zipBase64 };
+      }
+      const r = await fetch(`${API}/build`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(data.error || `خطای سرور (${r.status})`);
+      setPhase("queue");
+      poll(data.id);
+    } catch (e) {
+      const raw = String(e.message || e);
+      fail("ارسال کد انجام نشد.", { detail: raw, hint: explain(raw) });
+    }
+  }
+
+  // ---------- ویرایشگر ----------
+  function updateMeta() {
+    if (mode === "android" && amode === "zip") return;
+    const v = editor.value;
+    const bytes = new Blob([v]).size;
+    linesEl.textContent = fa.format(v ? v.split("\n").length : 0) + " خط";
+    sizeEl.textContent = bytes < 1024 ? fa.format(bytes) + " بایت" : faKb.format(bytes / 1024) + " کیلوبایت";
+    sizeEl.classList.toggle("over", bytes > MAX_BYTES);
+  }
+
+  function saveDraftSoon() {
+    if (mode !== "web") return;
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      try { localStorage.setItem(DRAFT_KEY, editor.value); } catch {}
+    }, 400);
+  }
+
+  function setCode(text) {
+    writeText(text);
+    editor.value = text;
+    updateMeta();
+    saveDraftSoon();
+    hideError();
+  }
+
+  async function loadFile(file) {
+    if (!file) return;
+    if (file.size > MAX_BYTES) {
+      showError("حجم فایل زیاد است", "حجم فایل از حدود ۹۰۰ کیلوبایت بیشتر است.", {
+        hint: "تصاویر بزرگ داخل فایل را حذف یا کوچک‌تر کنید.",
+      });
+      return;
+    }
+    setCode(await file.text());
+  }
+
+  function zipSizeLabel(bytes) {
+    if (bytes < 1024 * 1024) return faKb.format(bytes / 1024) + " کیلوبایت";
+    return faKb.format(bytes / 1024 / 1024) + " مگابایت";
+  }
+
+  function loadZip(file) {
+    if (!file) return;
+    if (!/\.zip$/i.test(file.name)) {
+      showError("فایل نامعتبر است", "فقط فایل با پسوند .zip پذیرفته می‌شود.");
+      return;
+    }
+    if (file.size > MAX_ZIP_BYTES) {
+      showError("حجم فایل زیاد است", "حجم فایل ZIP از حد مجاز (۴۰ مگابایت) بیشتر است.");
+      return;
+    }
+    state.zipFile = file;
+    zipName.textContent = file.name + " — " + zipSizeLabel(file.size);
+    hideError();
+  }
+
+  function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve(String(r.result).split(",")[1] || "");
+      r.onerror = () => reject(new Error("خواندن فایل ناموفق بود"));
+      r.readAsDataURL(file);
+    });
+  }
+
+  editor.addEventListener("input", () => { writeText(editor.value); updateMeta(); saveDraftSoon(); });
+  editor.addEventListener("keydown", (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") { e.preventDefault(); startBuild(); }
+  });
+
+  modeBar.addEventListener("click", (e) => {
+    const btn = e.target.closest(".modebtn");
+    if (!btn || btn.dataset.mode === mode) return;
+    mode = btn.dataset.mode;
+    hideError();
+    resultEl.hidden = true;
+    renderMode();
+  });
+
+  subModeBar.addEventListener("click", (e) => {
+    const btn = e.target.closest(".submodebtn");
+    if (!btn || btn.dataset.amode === amode) return;
+    amode = btn.dataset.amode;
+    hideError();
+    resultEl.hidden = true;
+    renderMode();
+  });
+
+  sampleBtn.addEventListener("click", () => {
+    const busy = currentText().trim() || (mode === "android" && amode === "multi" && state.androidFiles.some((f) => f.content.trim()));
+    if (busy && !confirm("کد فعلی با کد نمونه جایگزین شود؟")) return;
+    if (mode === "web") setCode(SAMPLE);
+    else if (amode === "single") setCode(SAMPLE_KOTLIN_SINGLE);
+    else if (amode === "multi") {
+      state.androidFiles = defaultAndroidFiles();
+      state.activeFileIdx = 0;
+      hideError();
+      renderMode();
+    }
+  });
+
+  pickBtn.addEventListener("click", () => {
+    if (mode === "android" && amode === "zip") zipFileInput.click();
+    else fileInput.click();
+  });
+  fileInput.addEventListener("change", () => {
+    loadFile(fileInput.files[0]);
+    fileInput.value = "";
+  });
+  zipFileInput.addEventListener("change", () => {
+    loadZip(zipFileInput.files[0]);
+    zipFileInput.value = "";
+  });
+
+  const hasFiles = (e) => e.dataTransfer && Array.from(e.dataTransfer.types || []).includes("Files");
+  ["dragenter", "dragover"].forEach((t) =>
+    editorBox.addEventListener(t, (e) => {
+      if (!hasFiles(e)) return;
+      e.preventDefault();
+      editorBox.classList.add("drop");
+    })
+  );
+  editorBox.addEventListener("dragleave", (e) => {
+    if (!editorBox.contains(e.relatedTarget)) editorBox.classList.remove("drop");
+  });
+  editorBox.addEventListener("drop", (e) => {
+    if (!hasFiles(e)) return;
+    e.preventDefault();
+    editorBox.classList.remove("drop");
+    const f = e.dataTransfer.files[0];
+    if (mode === "android" && amode === "zip") loadZip(f);
+    else loadFile(f);
+  });
+
+  buildBtn.addEventListener("click", startBuild);
+
+  // ---------- شروع ----------
+  try {
+    const draft = localStorage.getItem(DRAFT_KEY);
+    if (draft) state.web = draft;
+  } catch {}
+  renderMode();
+  renderStages();
+  paint();
+})();
+</script>
+</body>
+</html>
